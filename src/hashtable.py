@@ -105,8 +105,18 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
+        value =''
+        hashed_key = self._hash(key)
+        for hash in self.storage:
+            if hash.key == hashed_key:
+                value = hash.value
+            if hash.next:
+                next = hash.next
+                while next:
+                    if next.key == hashed_key:
+                        value = next.value
+                    next = next.next
+        return value
     def resize(self):
         '''
         Doubles the capacity of the hash table and
