@@ -23,7 +23,7 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        return hash(key)
+        return self._hash_djb2(key)
 
 
     def _hash_djb2(self, key):
@@ -32,7 +32,13 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash_value = 5381
+
+        for char in key:
+            hash_value = (hash_value << 5) + hash_value + ord(char)
+        
+        return hash_value
+
 
 
     def _hash_mod(self, key):
@@ -51,8 +57,33 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+    
+        # Create new node
+        new_node = LinkedPair(self._hash(key),value)
+        # Get current position
+        position = self._hash_mod(key)
+        # Get the current node at the position
+        current_node = self.storage[position]
+        if current_node is None:
+            self.storage[position] = new_node
+            return
 
+        elif current_node:
+            # Traverse the list
+            while current_node:
+                # Check if the key already exists and update
+                if (self._hash(key) == current_node.key):
+
+                    if ( value == current_node.value):
+                        return
+                    else:
+                        current_node.value = value
+                        return 
+                elif current_node.next is None:
+                    current_node.next = new_node
+                    return
+                current_node = current_node.next
+           
 
 
     def remove(self, key):
@@ -76,7 +107,6 @@ class HashTable:
         '''
         pass
 
-
     def resize(self):
         '''
         Doubles the capacity of the hash table and
@@ -95,6 +125,7 @@ if __name__ == "__main__":
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
 
+    print(ht._hash('ss'))
     print("")
 
     # Test storing beyond capacity
