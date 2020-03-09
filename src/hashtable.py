@@ -94,7 +94,20 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        hashed_key = self._hash(key)
+        # Get item position
+        position = self._hash_mod(key)
+
+        # Get item
+        item = self.storage[position]
+        while item is not None:
+            if item.key == hashed_key:
+                self.storage[position] = item.next
+                return key
+            item = item.next
+     
+        print('Item not found!!!')
+        return 
 
 
     def retrieve(self, key):
@@ -105,18 +118,18 @@ class HashTable:
 
         Fill this in.
         '''
-        value =''
         hashed_key = self._hash(key)
         for hash in self.storage:
-            if hash.key == hashed_key:
-                value = hash.value
-            if hash.next:
+            if hash is not None and hash.key == hashed_key:
+                return hash.value
+            if hash is not None and hash.next:
                 next = hash.next
                 while next:
                     if next.key == hashed_key:
-                        value = next.value
+                        return next.value
                     next = next.next
-        return value
+        return None
+
     def resize(self):
         '''
         Doubles the capacity of the hash table and
