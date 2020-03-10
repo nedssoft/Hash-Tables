@@ -59,7 +59,7 @@ class HashTable:
         '''
     
         # Create new node
-        new_node = LinkedPair(self._hash(key),value)
+        new_node = LinkedPair(key,value)
         # Get current position
         position = self._hash_mod(key)
         # Get the current node at the position
@@ -72,8 +72,7 @@ class HashTable:
             # Traverse the list
             while current_node:
                 # Check if the key already exists and update
-                if (self._hash(key) == current_node.key):
-
+                if (self._hash(key) == self._hash(current_node.key)):
                     if ( value == current_node.value):
                         return
                     else:
@@ -97,11 +96,10 @@ class HashTable:
         hashed_key = self._hash(key)
         # Get item position
         position = self._hash_mod(key)
-
         # Get item
         item = self.storage[position]
         while item is not None:
-            if item.key == hashed_key:
+            if self._hash(item.key) == hashed_key:
                 self.storage[position] = item.next
                 return key
             item = item.next
@@ -120,12 +118,12 @@ class HashTable:
         '''
         hashed_key = self._hash(key)
         for hash in self.storage:
-            if hash is not None and hash.key == hashed_key:
+            if hash is not None and self._hash(hash.key) == hashed_key:
                 return hash.value
             if hash is not None and hash.next:
                 next = hash.next
                 while next:
-                    if next.key == hashed_key:
+                    if self._hash(next.key) == hashed_key:
                         return next.value
                     next = next.next
         return None
@@ -137,7 +135,34 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # Create new storage
+        new_storage = [None]* self.capacity * 2
+        # Iterate over the old storage
+        # Copy items to the new storage
+        for i, item in enumerate(self.storage):
+            # Check if the item is not None
+            if item is not None:
+
+                # Get a position for the item
+                postion = self._hash_mod(item.key)
+                # Get the item already in the position
+                current_item = new_storage[postion]
+
+                # Check if there's no collision
+                if current_item is None:
+                    # Insert the item in position
+                    new_storage[postion] = item
+                # There's a collision, now traverse the list and insert the item at the right position
+                else:
+                    while current_item:
+
+                        # Check if it is the right position to insert the item
+                        if current_item.next is None:
+                            current_item.next = item
+                        else:
+                            current_item = current_item.next
+        # destroy the old storage memory
+        self.storage = new_storage
 
 
 
