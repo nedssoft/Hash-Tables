@@ -15,6 +15,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.count = 0
 
 
     def _hash(self, key):
@@ -23,7 +24,7 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        return hash(key)
+        return self._hash_djb2(key)
 
 
     def _hash_djb2(self, key):
@@ -32,7 +33,13 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash_value = 5381
+
+        for char in key:
+            hash_value = (hash_value << 5) + hash_value + ord(char)
+        
+        return hash_value
+
 
 
     def _hash_mod(self, key):
@@ -51,8 +58,35 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+    
+        # Create new node
+        if self.count >= self.capacity:
+            self.resize()
+        new_node = LinkedPair(key,value)
+        # Get current position
+        position = self._hash_mod(key)
+        # Get the current node at the position
+        current_node = self.storage[position]
+        if current_node is None:
+            self.storage[position] = new_node
+            self.count += 1
+            return
 
+        elif current_node:
+            # Traverse the list
+            while current_node:
+                # Check if the key already exists and update
+                if (self._hash(key) == self._hash(current_node.key)):
+                    if ( value == current_node.value):
+                        return
+                    else:
+                        current_node.value = value
+                        return 
+                elif current_node.next is None:
+                    current_node.next = new_node
+                    return
+                current_node = current_node.next
+           
 
 
     def remove(self, key):
@@ -63,7 +97,21 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        hashed_key = self._hash(key)
+        # Get item position
+        position = self._hash_mod(key)
+        # Get item
+        item = self.storage[position]
+        if (item and item.next is None):
+            self.count -= 1
+        while item is not None:
+            if self._hash(item.key) == hashed_key:
+                self.storage[position] = item.next
+                return key
+            item = item.next
+     
+        print('Item not found!!!')
+        return 
 
 
     def retrieve(self, key):
@@ -74,8 +122,17 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
+        hashed_key = self._hash(key)
+        for hash in self.storage:
+            if hash is not None and self._hash(hash.key) == hashed_key:
+                return hash.value
+            if hash is not None and hash.next:
+                next = hash.next
+                while next:
+                    if self._hash(next.key) == hashed_key:
+                        return next.value
+                    next = next.next
+        return None
 
     def resize(self):
         '''
@@ -84,7 +141,34 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # Create new storage
+        new_storage = [None]* self.capacity * 2
+        # Iterate over the old storage
+        # Copy items to the new storage
+        for i, item in enumerate(self.storage):
+            # Check if the item is not None
+            if item is not None:
+
+                # Get a position for the item
+                postion = self._hash_mod(item.key)
+                # Get the item already in the position
+                current_item = new_storage[postion]
+
+                # Check if there's no collision
+                if current_item is None:
+                    # Insert the item in position
+                    new_storage[postion] = item
+                # There's a collision, now traverse the list and insert the item at the right position
+                else:
+                    while current_item:
+
+                        # Check if it is the right position to insert the item
+                        if current_item.next is None:
+                            current_item.next = item
+                        else:
+                            current_item = current_item.next
+        # destroy the old storage memory
+        self.storage = new_storage
 
 
 
@@ -95,6 +179,7 @@ if __name__ == "__main__":
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
 
+    print(ht._hash('ss'))
     print("")
 
     # Test storing beyond capacity
